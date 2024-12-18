@@ -39,7 +39,7 @@ class Piece {
 
                 console.log('________________________________________________________________')
                 console.log(board);
-                console.log(board[newX][newY]);
+                // console.log(board[newX][newY]);
                 console.log('________________________________________________________________')
 
                 // Vérifie que le mouvement reste dans les limites du tableau

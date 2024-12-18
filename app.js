@@ -14,7 +14,10 @@ const p2Color = "purple";
 let board = [];
 let pieces = [];
 
-function highlightMoves(moves) {
+let selectedPiece = null;
+let possibleMoves =  [];
+
+function highlightMoves(moves, piece) {
     console.log("highlightMoves" + moves)
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // Couleur semi-transparente pour les mouvements
     moves.forEach(move => {
@@ -40,14 +43,46 @@ canvas.addEventListener("click", (e) => {
     // Vérifie si une pièce est cliquée
     const piece = pieces.find(p => p.x === mouseX && p.y === mouseY);
 
+    if(selectedPiece){
+        console.log(board)
+        console.log("AZERTT")
+        console.log(selectedPiece)
+        console.log(possibleMoves)
+        const validMove = possibleMoves.find(move => move.x === mouseX && move.y === mouseY);
+        if (validMove) {
+            console.log("QSDFGHJK")
+            console.log("OK");
+
+            board[mouseY][mouseX] = board[selectedPiece.y][selectedPiece.x];
+            board[selectedPiece.y][selectedPiece.x] = "__";
+
+
+            console.log(selectedPiece)
+            
+            selectedPiece.x = validMove.x;
+            selectedPiece.y = validMove.y
+
+            console.log(selectedPiece)
+
+            selectedPiece = null;
+            possibleMoves = [];
+            console.log(board)
+            drawBoard();
+            drawPieces();
+            return;
+        }
+    }
+
+
     console.log(piece)
 
     if (piece) {
-        const possibleMoves = piece.getPossibleMoves(board); // Calcule les mouvements
+        selectedPiece = piece;  
+        possibleMoves = piece.getPossibleMoves(board); // Calcule les mouvements
         console.log(possibleMoves)
         drawBoard();   // Redessine l'échiquier
         drawPieces();  // Redessine les pièces
-        highlightMoves(possibleMoves); // Affiche les mouvements
+        highlightMoves(possibleMoves, piece); // Affiche les mouvements
     } else {
         drawBoard();
         drawPieces();
@@ -56,30 +91,11 @@ canvas.addEventListener("click", (e) => {
 
 
 function drawBoard() {
-    board = [];
-    pieces = [];
-
     for (let i = 0; i < 8; i++) {
-        let row = [];
         for (let j = 0; j < 8; j++) {
-            pos = "__"
-            if ((i + j) % 2 === 0) {
-                ctx.fillStyle = color1;
-            } else {
-                ctx.fillStyle = color2;
-
-                if (i < 3) {
-                    pieces.push(new Piece(j, i, p1Color, "piece", "down", "p1"));
-                    pos = "p1"
-                } else if (i > 4) {
-                    pieces.push(new Piece(j, i, p2Color, "piece", "up" , "p2"));
-                    pos = "p2"
-                }
-            }
+            ctx.fillStyle = (i + j) % 2 === 0 ? color1 : color2;
             ctx.fillRect(j * caseSize, i * caseSize, caseSize, caseSize);
-            row.push(pos);
         }
-        board.push(row);
     }
 }
 
@@ -91,9 +107,31 @@ function drawPieces() {
 
 
 function init() {
+    // Initialise le tableau vide
+    for (let i = 0; i < 8; i++) {
+        const row = Array(8).fill("__");
+        board.push(row);
+    }
+
+    for (let i = 0; i < 8; i++) {
+        for (let j = 0; j < 8; j++) {
+            if (i < 3 && (i + j) % 2 !== 0) {
+                const piece = new Piece(j, i, p1Color, "piece", "down", "p1");
+                pieces.push(piece);
+                board[i][j] = "p1";
+            }else if ( i > 4 && (i + j) % 2 !== 0) {
+                const piece = new Piece(j, i, p2Color, "piece", "up", "p2");
+                pieces.push(piece);
+                board[i][j] = "p2";
+            }
+        }
+    }
+
+
+    console.log(board)
+
     drawBoard();
     drawPieces();
-    console.log(board);
 }
 
 init();
